@@ -1,65 +1,60 @@
-import java.util.*;
-
 /*
-Problem 1: Transaction Fee Sorting for Audit Compliance
-Sort transactions by fee using Bubble Sort.
-Sort by fee + timestamp using Insertion Sort.
-Handle duplicates (stable).
-Flag high-fee outliers (>50).
+Problem 2: Client Risk Score Ranking
+Sort clients by riskScore ascending using Bubble Sort.
+Sort by riskScore descending using Insertion Sort.
+Identify top 10 highest risk clients.
 */
 
-class Transaction {
-    String id;
-    double fee;
-    String ts;
+class Client {
+    String name;
+    int risk;
+    double bal;
 
-    Transaction(String id, double fee, String ts) {
-        this.id = id;
-        this.fee = fee;
-        this.ts = ts;
+    Client(String n, int r, double b) {
+        name = n;
+        risk = r;
+        bal = b;
     }
 }
 
-class TransactionProblemStatement1 {
-    static void bubble(List<Transaction> a) {
-        int n = a.size();
+class P2 {
+    static void bubble(Client[] a) {
+        int n = a.length;
         for (int i = 0; i < n - 1; i++) {
-            boolean s = false;
             for (int j = 0; j < n - i - 1; j++) {
-                if (a.get(j).fee > a.get(j + 1).fee) {
-                    Collections.swap(a, j, j + 1);
-                    s = true;
+                if (a[j].risk > a[j + 1].risk) {
+                    Client t = a[j];
+                    a[j] = a[j + 1];
+                    a[j + 1] = t;
                 }
             }
-            if (!s) break;
         }
     }
 
-    static void insertion(List<Transaction> a) {
-        for (int i = 1; i < a.size(); i++) {
-            Transaction k = a.get(i);
+    static void insertion(Client[] a) {
+        for (int i = 1; i < a.length; i++) {
+            Client k = a[i];
             int j = i - 1;
-            while (j >= 0 && (a.get(j).fee > k.fee ||
-                    (a.get(j).fee == k.fee && a.get(j).ts.compareTo(k.ts) > 0))) {
-                a.set(j + 1, a.get(j));
+            while (j >= 0 && a[j].risk < k.risk) {
+                a[j + 1] = a[j];
                 j--;
             }
-            a.set(j + 1, k);
+            a[j + 1] = k;
         }
     }
 
     public static void main(String[] args) {
-        List<Transaction> a = new ArrayList<>();
-        a.add(new Transaction("id1",10.5,"10:00"));
-        a.add(new Transaction("id2",25.0,"09:30"));
-        a.add(new Transaction("id3",5.0,"10:15"));
+        Client[] a = {
+                new Client("A",20,100),
+                new Client("B",50,200),
+                new Client("C",80,300)
+        };
 
         bubble(a);
         insertion(a);
 
-        for (Transaction t : a) {
-            System.out.println(t.id + " " + t.fee);
-            if (t.fee > 50) System.out.println("HIGH");
+        for (int i = 0; i < Math.min(10, a.length); i++) {
+            System.out.println(a[i].name + " " + a[i].risk);
         }
     }
 }
