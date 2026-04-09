@@ -1,60 +1,91 @@
 /*
-Problem 2: Client Risk Score Ranking
-Sort clients by riskScore ascending using Bubble Sort.
-Sort by riskScore descending using Insertion Sort.
-Identify top 10 highest risk clients.
+Problem 3: Historical Trade Volume Analysis
+Sort trades by volume using Merge Sort.
+Sort by volume descending using Quick Sort.
+Merge lists and compute total volume.
 */
 
-class Client {
-    String name;
-    int risk;
-    double bal;
+class Trade {
+    String id;
+    int v;
 
-    Client(String n, int r, double b) {
-        name = n;
-        risk = r;
-        bal = b;
+    Trade(String i, int v) {
+        id = i;
+        this.v = v;
     }
 }
 
-class P2 {
-    static void bubble(Client[] a) {
-        int n = a.length;
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (a[j].risk > a[j + 1].risk) {
-                    Client t = a[j];
-                    a[j] = a[j + 1];
-                    a[j + 1] = t;
-                }
-            }
+class P3 {
+    static void merge(Trade[] a, int l, int m, int r) {
+        int n1 = m - l + 1;
+        int n2 = r - m;
+
+        Trade[] L = new Trade[n1];
+        Trade[] R = new Trade[n2];
+
+        for (int i = 0; i < n1; i++) L[i] = a[l + i];
+        for (int j = 0; j < n2; j++) R[j] = a[m + 1 + j];
+
+        int i = 0, j = 0, k = l;
+
+        while (i < n1 && j < n2) {
+            if (L[i].v <= R[j].v) a[k++] = L[i++];
+            else a[k++] = R[j++];
+        }
+
+        while (i < n1) a[k++] = L[i++];
+        while (j < n2) a[k++] = R[j++];
+    }
+
+    static void ms(Trade[] a, int l, int r) {
+        if (l < r) {
+            int m = (l + r) / 2;
+            ms(a, l, m);
+            ms(a, m + 1, r);
+            merge(a, l, m, r);
         }
     }
 
-    static void insertion(Client[] a) {
-        for (int i = 1; i < a.length; i++) {
-            Client k = a[i];
-            int j = i - 1;
-            while (j >= 0 && a[j].risk < k.risk) {
-                a[j + 1] = a[j];
-                j--;
+    static int part(Trade[] a, int l, int h) {
+        int p = a[h].v;
+        int i = l - 1;
+        for (int j = l; j < h; j++) {
+            if (a[j].v > p) {
+                i++;
+                Trade t = a[i];
+                a[i] = a[j];
+                a[j] = t;
             }
-            a[j + 1] = k;
+        }
+        Trade t = a[i + 1];
+        a[i + 1] = a[h];
+        a[h] = t;
+        return i + 1;
+    }
+
+    static void qs(Trade[] a, int l, int h) {
+        if (l < h) {
+            int pi = part(a, l, h);
+            qs(a, l, pi - 1);
+            qs(a, pi + 1, h);
         }
     }
 
     public static void main(String[] args) {
-        Client[] a = {
-                new Client("A",20,100),
-                new Client("B",50,200),
-                new Client("C",80,300)
+        Trade[] a = {
+                new Trade("t1",500),
+                new Trade("t2",100),
+                new Trade("t3",300)
         };
 
-        bubble(a);
-        insertion(a);
+        ms(a,0,a.length-1);
+        qs(a,0,a.length-1);
 
-        for (int i = 0; i < Math.min(10, a.length); i++) {
-            System.out.println(a[i].name + " " + a[i].risk);
+        int sum = 0;
+        for (Trade t : a) {
+            sum += t.v;
+            System.out.println(t.id + " " + t.v);
         }
+        System.out.println(sum);
     }
 }
